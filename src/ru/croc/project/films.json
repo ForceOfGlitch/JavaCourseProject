@@ -1,0 +1,29 @@
+{
+  "films": [
+    {
+      "id": "0",
+      "name": "Film10",
+      "genres": [
+        "genre1"
+      ]
+    },
+    {
+      "id": "1",
+      "name": "Film20",
+      "genres": [
+        "genre2",
+        "genre1"
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Film30",
+      "genres": [
+        "genre3",
+        "genre20",
+        "genre10"
+      ]
+    }
+  ]
+}
+
