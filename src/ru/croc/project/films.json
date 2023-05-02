@@ -1,24 +1,27 @@
 {
   "films": [
     {
-      "name": "Film1",
-      "genre": [
+      "id": "0",
+      "name": "Film10",
+      "genres": [
         "genre1"
       ]
     },
     {
-      "name": "Film2",
-      "genre": [
+      "id": "1",
+      "name": "Film20",
+      "genres": [
         "genre2",
         "genre1"
       ]
     },
     {
-      "name": "Film3",
-      "genre": [
+      "id": "2",
+      "name": "Film30",
+      "genres": [
         "genre3",
-        "genre2",
-        "genre1"
+        "genre20",
+        "genre10"
       ]
     }
   ]

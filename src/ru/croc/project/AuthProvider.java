@@ -1,10 +1,10 @@
 package ru.croc.project;
 
 import ru.croc.project.models.User;
-import ru.croc.project.dto.UserDto;
+import ru.croc.project.dao.UserDao;
 
 public class AuthProvider {
-    private final UserDto userDto = new UserDto(DataSource.getDataSource());
+    private final UserDao userDao = new UserDao(DataSource.getDataSource());
 
     public AuthProvider(){}
 
@@ -15,13 +15,13 @@ public class AuthProvider {
      */
     public boolean login(String userName){
 
-        for (User user : userDto.getAllUsers()) {
+        for (User user : userDao.getAllUsers()) {
             if (user.getName().equals(userName)){
                 return user.isPromoted();
             }
         }
 
-        userDto.save(new User(userName, false));
+        userDao.save(new User(0, userName, false));
         return false;
     }
 }

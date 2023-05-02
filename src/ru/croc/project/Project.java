@@ -1,10 +1,13 @@
 package ru.croc.project;
 
+import ru.croc.project.dao.UserDao;
+import ru.croc.project.exporters.CsvExporter;
+import ru.croc.project.importers.JsonImporter;
 import ru.croc.project.models.Film;
 import ru.croc.project.models.User;
-import ru.croc.project.dto.FilmDto;
-import ru.croc.project.dto.GenreDto;
-import ru.croc.project.dto.ScoreDto;
+import ru.croc.project.dao.FilmDao;
+import ru.croc.project.dao.GenreDao;
+import ru.croc.project.dao.ScoreDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,24 +19,27 @@ public class Project {
         Scanner scanner = new Scanner(System.in);
         AuthProvider authProvider = new AuthProvider();
 
-        FilmDto filmDto = new FilmDto(DataSource.getDataSource());
-        GenreDto genreDto = new GenreDto(DataSource.getDataSource());
-        ScoreDto scoreDto = new ScoreDto(DataSource.getDataSource());
+        FilmDao filmDao = new FilmDao(DataSource.getDataSource());
+        GenreDao genreDao = new GenreDao(DataSource.getDataSource());
+        ScoreDao scoreDao = new ScoreDao(DataSource.getDataSource());
+        UserDao userDao = new UserDao(DataSource.getDataSource());
 
         System.out.println("Введите имя пользователя");
         String userName = scanner.nextLine();
         boolean isPromoted = authProvider.login(userName);
-        CommandFilter commandFilter = new CommandFilter(isPromoted, 2, 2);
+        CommandFilter commandFilter = new CommandFilter(isPromoted, 2, 4);
 
         int currentCommand;
 
-        while(true){
+        mainLoop : while(true){
             System.out.println("Перечень доступных команд (ввести нужный номер):");
             System.out.println("1. Поставить оценку фильму");
             System.out.println("2. Сформировать топ по конкретному жанру");
             if (isPromoted) {
                 System.out.println("3. Добавить фильм");
                 System.out.println("4. Удалить фильм");
+                System.out.println("5. Импорт фильмов и жанров из json");
+                System.out.println("6. Экспорт фильмов и жанров в csv");
             }
 
             String commandLine = scanner.nextLine();
@@ -49,8 +55,10 @@ public class Project {
 
                     while(true){
                         try{
-                            System.out.println("Напишите название фильма");
-                            film = filmDto.findOne(scanner.nextLine());
+                            System.out.println("Напишите название фильма (пустая строка выход)");
+                            String inputString = scanner.nextLine();
+                            if (inputString.equals("")) continue mainLoop;
+                            film = filmDao.findOne(inputString);
                             break;
                         } catch (IllegalArgumentException exception) {
                             System.out.println("Фильм с таким названием не найден");
@@ -64,7 +72,7 @@ public class Project {
                         commandLine = scanner.nextLine();
                     }
 
-                    scoreDto.saveScore(new User(userName, isPromoted), film, Integer.parseInt(commandLine));
+                    scoreDao.saveScore(new User(userDao.findOne(userName).getId(), userName, isPromoted), film, Integer.parseInt(commandLine));
                     break;
                 }
                 case (2): {
@@ -83,8 +91,7 @@ public class Project {
                     System.out.println("Напишите жанр (необязательно)");
                     genre = scanner.nextLine();
 
-                    System.out.println("На данный момент система не формирует рейтинг по причине отсутствия существования оценок (нет БД)");
-                    System.out.println(new FilmDto(DataSource.getDataSource()).getTop(filmsCount, genre));
+                    new FilmDao(DataSource.getDataSource()).printTop(filmsCount, genre);
                     break;
                 }
                 case (3): {
@@ -96,7 +103,7 @@ public class Project {
                         String currGenre = scanner.nextLine();
                         if (currGenre.equals("")) break;
 
-                        if (!genreDto.isGenreExists(currGenre)){
+                        if (!genreDao.isGenreExists(currGenre)){
                             System.out.println("Такого жанра не существует");
                             continue;
                         }
@@ -105,7 +112,7 @@ public class Project {
                         System.out.println("Жанр добавлен к фильму");
                     }
 
-                    filmDto.save(new Film(filmName, genres));
+                    filmDao.save(new Film(0, filmName, genres));
                     System.out.println("Фильм успешно добавлен");
                     break;
                 }
@@ -116,15 +123,29 @@ public class Project {
                     while(true){
                         try{
                             System.out.println("Напишите название фильма для удаления");
-                            film = filmDto.findOne(scanner.nextLine());
+                            film = filmDao.findOne(scanner.nextLine());
                             break;
                         } catch (IllegalArgumentException exception) {
                             System.out.println("Фильм с таким названием не найден");
                         }
                     }
 
-                    filmDto.delete(film);
+                    filmDao.delete(film);
                     System.out.println("Фильм успешно удалён");
+                    break;
+                }
+
+                case (5): {
+                    JsonImporter jsonImporter = new JsonImporter();
+                    jsonImporter.doImport();
+                    System.out.println("Произведён импорт фильмов и жанров из json");
+                    break;
+                }
+
+                case (6): {
+                    CsvExporter csvExporter = new CsvExporter();
+                    csvExporter.exportToCsv();
+                    System.out.println("Произведён экспорт фильмов и жанров в csv формат");
                     break;
                 }
 

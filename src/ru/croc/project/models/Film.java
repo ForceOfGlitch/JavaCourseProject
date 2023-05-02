@@ -4,9 +4,27 @@ import java.util.List;
 
 public class Film {
 
-    private final String name;
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    private final List<String> genres;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+    }
+
+    private int id;
+
+    private String name;
+
+    private List<String> genres;
+
+    public int getId() {
+        return id;
+    }
 
     public String getName() {
         return name;
@@ -16,16 +34,25 @@ public class Film {
         return genres;
     }
 
-    public Film(String name, List<String> genres){
+    public Film(){}
+    public Film(int id, String name, List<String> genres){
+        this.id = id;
         this.name = name;
         this.genres = genres;
     }
 
     @Override
     public String toString(){
-        return "Film{ " +
-                "Name: " + name +
-                "Genre: " + genres +
-                " }";
+        String template = "Film = {Id: %d, Name: %s, Genres: %s }";
+        StringBuilder genresString = new StringBuilder();
+
+        for (int i = 0; i < genres.size(); i++) {
+            genresString.append(genres.get(i));
+            if (i < genres.size() - 1){
+                genresString.append(", ");
+            }
+        }
+
+        return String.format(template, id, name, genresString);
     }
 }
